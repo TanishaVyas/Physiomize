@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "993312168850",
+    "firebase_url": "https://projectpsy-815fa-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "projectpsy-815fa",
+    "storage_bucket": "projectpsy-815fa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:993312168850:android:8574d0641d8b42ecdabf4b",
+        "android_client_info": {
+          "package_name": "com.DefaultCompany.Physiomize"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "993312168850-nci095csucsstafk9gao2r44o188i6ho.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBh_gMU9PCfAqvHHziwNCTVhhPpsa4FkY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "993312168850-nci095csucsstafk9gao2r44o188i6ho.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

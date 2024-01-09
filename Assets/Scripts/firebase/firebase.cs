@@ -17,27 +17,34 @@ public class firebase : MonoBehaviour
         });
     }
     
-    public void AddDataEntry(string name,List<string> yourList,string age,string gender)
-    {   
-        var time = DateTime.Now;
-Debug.Log(time);
+public void AddDataEntry(string name, List<Dictionary<string, object>> yourList, string age, string gender)
+{
+    var time = DateTime.Now;
+    string timestamp = time.ToString("M-d-yyyy h:mm:ss tt");
 
-// Format the DateTime according to the specified pattern
-string tim = time.ToString("M-d-yyyy h:mm:ss tt");
+    string userId = name;
+    DatabaseReference userReference = reference.Child(userId);
+    DatabaseReference entryReference = userReference.Push(); // Use Push to generate a unique key
 
-// Now tim should have the formatted timestamp
-Debug.Log(tim);
+    entryReference.Child("timestamp").SetValueAsync(timestamp);
+    entryReference.Child("age").SetValueAsync(age);
+    entryReference.Child("gender").SetValueAsync(gender);
+    entryReference.Child("scene").SetValueAsync(SceneManager.GetActiveScene().name);
 
-        string userId = name; // Replace with your method to obtain user identifier
-        DatabaseReference userReference = reference.Child(userId);
-        DatabaseReference timeReference = userReference.Child(" "+tim+" "+age+" "+gender+" "+SceneManager.GetActiveScene().name+" ");
-        
-        foreach (string s in yourList)
+    // Add yourList as child nodes under the "data" node
+    DatabaseReference dataReference = entryReference.Child("data");
+
+    foreach (var entry in yourList)
+    {
+        DatabaseReference entryNode = dataReference.Push(); // Use Push to generate a unique key for each entry
+
+        foreach (var keyValuePair in entry)
         {
-            string entryId = System.Guid.NewGuid().ToString();
-            timeReference.Child(entryId).SetValueAsync(s);
+            entryNode.Child(keyValuePair.Key).SetValueAsync(keyValuePair.Value.ToString());
         }
     }
+}
+
     
  public void ReadName(string name,Action<IEnumerable<DataSnapshot>> onComplete)
     {

@@ -8,6 +8,7 @@ public class painarray : MonoBehaviour
     int i=0;
     bool up=false;
     public List<string> data = new List<string>();
+    public List<Dictionary<string, object>> data1 = new List<Dictionary<string, object>>();
     [SerializeField]
     TMP_Text Text;
     [SerializeField]
@@ -22,6 +23,11 @@ public class painarray : MonoBehaviour
     {   
         i=0;
         string s = "acute pain at "+init+"°";
+        Dictionary<string, object> entry = new Dictionary<string, object>
+        {
+            { "acute_pain", init }
+        };
+        data1.Add(entry);
         data.Add(s);
         up=true;
     }
@@ -29,6 +35,11 @@ public class painarray : MonoBehaviour
     public void rangedata(float init,float last)
     {
         i=0;
+        Dictionary<string, object> entry = new Dictionary<string, object>
+        {
+            { "ranged_pain", $"({init}, {last})" }
+        };
+        data1.Add(entry);
         string s = "ranged pain at "+init+"° to "+last+"°";
         data.Add(s);
         up=true;
@@ -62,13 +73,19 @@ public class painarray : MonoBehaviour
         gameObjects = GameObject.FindGameObjectsWithTag("Finish");
         foreach (GameObject gameObject in gameObjects)
         {
-            string s = "Pain Location at  "+gameObject.transform.position;
-             data.Add(s);
-             Destroy(gameObject);
+            Dictionary<string, object> entry = new Dictionary<string, object>
+            {
+                { "position", gameObject.transform.position }
+            };
+            data1.Add(entry);
+            Destroy(gameObject);
         }
-        string ss = "max:"+ mv.max + ", min:" + mv.min ;
-        data.Add(ss);
-        fb.AddDataEntry(register_username.text,data,age.text,gender.options[gender.value].text);
+         Dictionary<string, object> minMaxEntry = new Dictionary<string, object>
+        {
+            { "maxmin", $"({mv.max}, {mv.min})" },
+        };
+        data1.Add(minMaxEntry);
+        fb.AddDataEntry(register_username.text,data1,age.text,gender.options[gender.value].text);
         data.Clear();
         Text.text="";
     }
