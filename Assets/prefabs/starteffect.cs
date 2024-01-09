@@ -12,7 +12,8 @@ public class starteffect : MonoBehaviour
 
     void Update()
     {   //Debug.Log(storedangle+"  "+joint.transform.localRotation.x);
-        if(storedangle==(joint.transform.localRotation.x)&&!started)
+      if(joint!=null){
+        if(/*storedangle==(joint.transform.localRotation.x) &&*/!started)
         {   
             ps.Play();
             started=true;
@@ -21,6 +22,10 @@ public class starteffect : MonoBehaviour
         {
             started=false;
         }
+      }
+      else{
+        ps.Play();
+      }
     }
 
 }

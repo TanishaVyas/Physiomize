@@ -72,10 +72,13 @@ public class painarray : MonoBehaviour
     {   GameObject[] gameObjects;
         gameObjects = GameObject.FindGameObjectsWithTag("Finish");
         foreach (GameObject gameObject in gameObjects)
-        {
+        {   
+
+            string localPositionString = $"({gameObject.transform.localPosition.x:F3}, {gameObject.transform.localPosition.y:F3}, {gameObject.transform.localPosition.z:F3})";
+            Debug.Log(localPositionString);
             Dictionary<string, object> entry = new Dictionary<string, object>
             {
-                { "position", gameObject.transform.position }
+                { "position", localPositionString }
             };
             data1.Add(entry);
             Destroy(gameObject);
