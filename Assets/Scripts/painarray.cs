@@ -74,7 +74,7 @@ public class painarray : MonoBehaviour
         foreach (GameObject gameObject in gameObjects)
         {   
 
-            string localPositionString = $"({gameObject.transform.localPosition.x:F3}, {gameObject.transform.localPosition.y:F3}, {gameObject.transform.localPosition.z:F3})";
+            string localPositionString = $"({gameObject.transform.localPosition.x:F6}, {gameObject.transform.localPosition.y:F6}, {gameObject.transform.localPosition.z:F6})";
             Debug.Log(localPositionString);
             Dictionary<string, object> entry = new Dictionary<string, object>
             {

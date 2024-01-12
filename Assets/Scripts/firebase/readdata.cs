@@ -118,20 +118,27 @@ private void DisplayCurrentIndex()
     {
         Dictionary<string, object> currentEntry = shotdata[currentIndex];
 
+             GameObject[] gameObjects;
+        gameObjects = GameObject.FindGameObjectsWithTag("spot");
+        foreach (GameObject gameObject in gameObjects)
+        {  
+            Destroy(gameObject);
+        }
         if (currentEntry.ContainsKey("maxmin"))
         {
             Debug.Log("Type: MaxMin");
             // Perform actions specific to MaxMin type
         }
         else if (currentEntry.ContainsKey("position"))
-        {
+        {   
+       
             Debug.Log("Type: Position");
             string positionString = currentEntry["position"].ToString();
             Vector3 position = ParseVector3(positionString);
             var spotf = Instantiate(spot, position, Quaternion.identity);
             spotf.transform.parent = legpain.transform;
             spotf.transform.localPosition = position;
-            spotf.transform.localScale=3*Vector3.one;
+            spotf.transform.localScale=4*Vector3.one;
         }
         else if (currentEntry.ContainsKey("acute_pain"))
         {
