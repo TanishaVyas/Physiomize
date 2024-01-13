@@ -9,10 +9,12 @@ using UnityEngine.UI;
 
 public class readdata : MonoBehaviour
 {   
+    public holdrotate hr;
     private int currentIndex = 0;
     [SerializeField]
     public TMP_Dropdown tmpDropdown;
-
+    [SerializeField]
+    TMP_InputField Inputname;
     public firebase fb;
 
     public IEnumerable<DataSnapshot> alldata;
@@ -22,18 +24,27 @@ public class readdata : MonoBehaviour
     public List<Dictionary<string, object>> shotdata = new List<Dictionary<string, object>>();
     [SerializeField]
     public GameObject spot;
-    public GameObject legpain;
+    GameObject legpain;
+    GameObject Painpoint;
     [SerializeField]
     string name = "";
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKeyDown("space"))
-        {
-            fb.ReadName(name, OnReadNameComplete);
-        }
-    }
 
+
+
+    [SerializeField]
+    GameObject Knee1;
+
+    [SerializeField]
+    GameObject Elbow;
+
+    string scene;
+
+    // Update is called once per frame
+
+public void callReadName()
+{
+   fb.ReadName(Inputname.text, OnReadNameComplete);
+}
 private void OnReadNameComplete(IEnumerable<DataSnapshot> childrenList)
 {
     tmpDropdown.ClearOptions();
@@ -42,23 +53,29 @@ private void OnReadNameComplete(IEnumerable<DataSnapshot> childrenList)
     {
         List<string> options = new List<string>();
         childlastdata.Clear();
-        tmpDropdown.options.Clear();
         foreach (var childSnapshot in alldata)
         {
             string entryId = childSnapshot.Key;
             string timestamp = childSnapshot.Child("timestamp").Value.ToString();
             string entryData = $"ID: {entryId}, Timestamp: {timestamp}";
 
-            tmpDropdown.options.Add(new TMP_Dropdown.OptionData(timestamp));
+            options.Add(timestamp);
             childlastdata.Add(childSnapshot);
         }
-        OnDropdownValueChanged(0);
-        tmpDropdown.captionText.text = tmpDropdown.options[0].text;
-        tmpDropdown.value = 0; // optional
-        tmpDropdown.Select(); // optional
+        
+        tmpDropdown.AddOptions(options);
+         tmpDropdown.value = -1;
+        tmpDropdown.value = 0;
         tmpDropdown.RefreshShownValue();
+        // Disable the dropdown
+tmpDropdown.enabled = false;
+
+// Enable the dropdown
+tmpDropdown.enabled = true;
+       
     }
 }
+
 
    public void OnDropdownValueChanged(int index)
 {
@@ -72,7 +89,7 @@ private void OnReadNameComplete(IEnumerable<DataSnapshot> childrenList)
 
         // Access the "data" child
         DataSnapshot dataSnapshot = selectedSnapshot.Child("data");
-
+        scene= selectedSnapshot.Child("scene").Value.ToString();
         foreach (var typeSnapshot in dataSnapshot.Children)
         {
             string dataType = typeSnapshot.Key;
@@ -88,7 +105,22 @@ private void OnReadNameComplete(IEnumerable<DataSnapshot> childrenList)
             //Debug.Log( entryKey + " " + entryValue );
             }
         }
-        DisplayCurrentIndex();
+        Knee1.SetActive(false);
+        Elbow.SetActive(false);
+       
+        switch(scene){
+            case "knee 1":
+                Knee1.SetActive(true);
+                legpain = FindChildWithTag(Knee1, "painloc");
+                hr.hd=Knee1.GetComponent<Rotation>();
+                break;
+            case "elbow":
+                Elbow.SetActive(true);
+                legpain = FindChildWithTag(Elbow, "painloc");
+                hr.hd=Elbow.GetComponent<Rotation>();
+                break;
+        }
+     DisplayCurrentIndex();
     }
 }
 
@@ -117,12 +149,10 @@ private void DisplayCurrentIndex()
     if (shotdata.Count > 0)
     {
         Dictionary<string, object> currentEntry = shotdata[currentIndex];
-
-             GameObject[] gameObjects;
-        gameObjects = GameObject.FindGameObjectsWithTag("spot");
-        foreach (GameObject gameObject in gameObjects)
-        {  
-            Destroy(gameObject);
+        
+        if(Painpoint!=null)
+        {
+            Destroy(Painpoint);
         }
         if (currentEntry.ContainsKey("maxmin"))
         {
@@ -139,6 +169,7 @@ private void DisplayCurrentIndex()
             spotf.transform.parent = legpain.transform;
             spotf.transform.localPosition = position;
             spotf.transform.localScale=4*Vector3.one;
+            Painpoint=spotf;
         }
         else if (currentEntry.ContainsKey("acute_pain"))
         {
@@ -171,4 +202,19 @@ private Vector3 ParseVector3(string vectorString)
 
     return Vector3.zero; // Return a default value if parsing fails
 }
+ GameObject FindChildWithTag(GameObject parent, string tag)
+    {
+        Transform[] children = parent.GetComponentsInChildren<Transform>(true);
+
+        foreach (Transform child in children)
+        {
+            if (child != null && child.gameObject != null && child.gameObject.tag == tag)
+            {
+                return child.gameObject;
+            }
+        }
+
+        // Child with the specified tag not found
+        return null;
+    }
 }
