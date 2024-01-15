@@ -77,8 +77,6 @@ public class movesoham : MonoBehaviour
         float sumgx = 0;
         float sumgy = 0;
         float sumax = 0;
-        float sumay = 0;
-        float sumaz = 0;
         int i = 0;
         cal=false;
         while (i < sample_size)
@@ -86,24 +84,18 @@ public class movesoham : MonoBehaviour
             gyrox = float.Parse(data[0]);
             gyroy = float.Parse(data[1]);
             accx = float.Parse(data[2]);
-            accy = float.Parse(data[3]);
             sumgx += gyrox;
             sumgy += gyroy;
             sumax += accx;
-            sumay += accy;
-            sumaz += accz;
             i += 1;
         }
         errgx = sumgx / sample_size;
         errgy = sumgy / sample_size;
         errax = sumax / sample_size;
-        erray = sumay / sample_size;
-        erraz = sumaz / sample_size;
         // Initialize Kalman filter states after calibration
         PlayerPrefs.SetFloat("errgx", errgx);
         PlayerPrefs.SetFloat("errgy", errgy);
         PlayerPrefs.SetFloat("errax", errax);
-        PlayerPrefs.SetFloat("erray", erray);
         Debug.Log("cali complete");
         resetminmax();
     }
@@ -113,7 +105,7 @@ public class movesoham : MonoBehaviour
     }
     void FixedUpdate()
     {
-        if (data.Length > 3)
+        if (data.Length >= 3)
         {
             if (Input.GetKeyDown(KeyCode.C))
             {   
@@ -129,29 +121,27 @@ public class movesoham : MonoBehaviour
             gyrox = float.Parse(data[0]) + (-1) * errgx;
             gyroy = float.Parse(data[1]) + (-1) * errgy;
             accx = float.Parse(data[2]) + (-1) * errax;
-            accy = float.Parse(data[3]) + (-1) * erray;
             
             if(accy>10)
             {
                 Debug.Log("Punched");
             }
             // Kalman filter prediction and update
-            float filteredX = kalmanX.PredictAndUpdate(gyrox);
+            /*float filteredX = kalmanX.PredictAndUpdate(gyrox);
             float filteredY = kalmanY.PredictAndUpdate(gyroy);
             float acccx = kalmanY.PredictAndUpdate(accx);
-            float acccy = kalmanY.PredictAndUpdate(accy);
+            float acccy = kalmanY.PredictAndUpdate(accy);*/
 
-            int angle_x = (int)((alpha * accx + (1 - alpha) * filteredX) * scale);
-            int angle_y = (int)((alpha * accy + (1 - alpha) * filteredY) * scale);
-
+            int angle_x = (int)gyrox;//(int)((alpha * accx + (1 - alpha) * filteredX) * scale);
+            int angle_y = (int)gyroy;//(int)((alpha * accy + (1 - alpha) * filteredY) * scale);
+            int angle_z = (int)accx;
           
             switch (js)
             {
                 
                 case joint.elbow:
-                    angle_y=-1*angle_y+elbowdeviation;
-                    leg.transform.localEulerAngles =  Vector3.Lerp(new Vector3(leg.transform.localRotation.x,leg.transform.localRotation.y,leg.transform.localRotation.z),(new Vector3(-1*angle_y+elbowdeviation,leg.transform.localRotation.y,leg.transform.localRotation.z)),1f);
-                    gg=((int)(2 * (Mathf.Rad2Deg * Mathf.Acos(leg.transform.localRotation.w)))+elbowdeviation)*-1;
+                    leg.transform.localEulerAngles =  Vector3.Lerp(new Vector3(leg.transform.localRotation.x,leg.transform.localRotation.y,leg.transform.localRotation.z),(new Vector3(-angle_z,leg.transform.localRotation.y,leg.transform.localRotation.z)),1f);
+                    gg=angle_z;
                 if(gg>max)
                     {
                         max=gg;
