@@ -14,7 +14,7 @@ public class readdata : MonoBehaviour
     private int currentIndex = 0;
 
     [SerializeField]
-    public Dropdown tmpDropdown;//TMP_Dropdown
+    public Dropdown tmpDropdown; //TMP_Dropdown
 
     [SerializeField]
     TMP_InputField Inputname;
@@ -45,7 +45,7 @@ public class readdata : MonoBehaviour
     GameObject Elbow;
 
     string scene;
-
+    bool ranged= false;
     // Update is called once per frame
     public void callReadName()
     {
@@ -56,7 +56,7 @@ public class readdata : MonoBehaviour
     {
         tmpDropdown.ClearOptions();
         alldata = childrenList;
-        string first= "";
+        string first = "";
         if (alldata != null)
         {
             List<string> options = new List<string>();
@@ -66,13 +66,13 @@ public class readdata : MonoBehaviour
                 string entryId = childSnapshot.Key;
                 string timestamp =
                     childSnapshot.Child("timestamp").Value.ToString();
-                if(first=="")
+                if (first == "")
                 {
-                    first=timestamp;
+                    first = timestamp;
                 }
                 string entryData = $"ID: {entryId}, Timestamp: {timestamp}";
                 var op = new Dropdown.OptionData(timestamp);
-                tmpDropdown.options.Add(op);
+                tmpDropdown.options.Add (op);
                 childlastdata.Add (childSnapshot);
             }
             Debug.Log("exe");
@@ -83,8 +83,8 @@ public class readdata : MonoBehaviour
     }
 
     public void OnDropdownValueChanged()
-    {   
-        int index= tmpDropdown.value;
+    {
+        int index = tmpDropdown.value;
         if (index >= 0 && index < childlastdata.Count)
         {
             shotdata.Clear();
@@ -162,6 +162,10 @@ public class readdata : MonoBehaviour
             {
                 Destroy (Painpoint);
             }
+            if(ranged==true)
+            {
+                ranged=false;
+            }
             if (currentEntry.ContainsKey("maxmin"))
             {
                 Debug.Log("Type: MaxMin");
@@ -186,6 +190,16 @@ public class readdata : MonoBehaviour
             else if (currentEntry.ContainsKey("ranged_pain"))
             {
                 Debug.Log("Type: Ranged Pain");
+                List<int> range = new List<int>();
+                Debug.Log(currentEntry["ranged_pain"]);
+                range=ParseList(currentEntry["ranged_pain"].ToString());
+                if (range != null)
+                {
+                    int init = range[0];
+                    int fin = range[1];
+                    ranged=true;
+                    StartCoroutine(MoveLegPain(init, fin));
+                }
                 // Perform actions specific to Ranged Pain type
             }
         }
@@ -194,7 +208,27 @@ public class readdata : MonoBehaviour
             Debug.Log("No data available.");
         }
     }
+private IEnumerator MoveLegPain(int init, int fin)
+{   float orirot=legpain.transform.localEulerAngles.x;
+    float duration = 2f; // Adjust the duration as needed
+    float elapsed = 0f;
+    Debug.Log("moving");
+    while (ranged)
+    {
+        float t = Mathf.Sin(elapsed / duration * Mathf.PI * 2) * 0.5f + 0.5f;
 
+        // Interpolate between init and fin
+        int currentPos = (int)Mathf.Lerp(init, fin, t);
+
+        // Move legpain to the current position
+        // Replace "legpain.transform.position.x" with the actual property you want to modify
+        legpain.transform.localEulerAngles = new Vector3(currentPos, 0, 0);
+
+        elapsed += Time.deltaTime;
+        yield return null;
+    }
+    legpain.transform.localEulerAngles = new Vector3(orirot, 0, 0);
+}
     private Vector3 ParseVector3(string vectorString)
     {
         string[] components = vectorString.Trim('(', ')').Split(',');
@@ -209,6 +243,19 @@ public class readdata : MonoBehaviour
         }
 
         return Vector3.zero; // Return a default value if parsing fails
+    }
+
+    private List<int> ParseList(string str)
+    {
+        string[] components = str.Trim('(', ')').Split(',');
+        List<int> value = new List<int>();
+    
+
+            value.Add(int.Parse(components[0]));
+            value.Add(int.Parse(components[1]));
+            return value;
+        
+ // Return a default value if parsing fails
     }
 
     GameObject FindChildWithTag(GameObject parent, string tag)
